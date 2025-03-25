@@ -55,3 +55,5 @@ Ensure you have Burp Suite and the necessary tools set up as mentioned in the pr
 
 Disclaimer
 This script is intended for educational purposes only. Use it responsibly and ensure you have permission to scan any network or application.
+
+Credit to [ProjectDiscovery](https://github.com/projectdiscovery) for httpx!
