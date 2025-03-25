@@ -2,6 +2,8 @@
 
 BurpScan is a Python script designed to perform unauthenticated active scans using Burp Suite. It allows users to input various types of files or network addresses and processes them to facilitate scanning.
 
+![Screenshot of BurpScan](images/example.png)
+
 ## Features
 
 - Supports multiple input formats:
