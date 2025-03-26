@@ -281,7 +281,7 @@ def main():
         print("🚫 No valid targets found.")
         sys.exit(1)
 
-    print("🔍 Running httpx to verify live services on all ports...")
+    print("🔍 Running httpx to verify live services...")
     httpx_targets = run_httpx_filter(raw_targets, args.debug)
 
     if not httpx_targets:
