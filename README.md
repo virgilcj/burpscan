@@ -129,6 +129,7 @@ sudo apt purge python3-httpx -y # Remove the kali pre-installed httpx
 
 # Credits
 [ProjectDiscovery](https://projectdiscovery.io/) for their excellent httpx and katana tools
+
 [PortSwigger](https://portswigger.net/) for Burp Suite and their REST API
 
 
