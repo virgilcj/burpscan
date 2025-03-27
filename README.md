@@ -1,6 +1,8 @@
 # BurpScan
 A powerful utility to automate unauthenticated web application security testing with Burp Suite by handling various input formats, intelligently discovering endpoints, and creating properly scoped scans.
 
+![Example](images/example.png)
+
 
 # Overview
 BurpScan bridges the gap between reconnaissance tools and Burp Suite Professional, making unauthenticated web application security testing more efficient. It intelligently processes various input formats, verifies live services, optionally discovers endpoints with katana, and creates properly scoped Burp Suite active scans.
