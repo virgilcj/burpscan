@@ -1,59 +1,135 @@
 # BurpScan
+A powerful utility to automate unauthenticated web application security testing with Burp Suite by handling various input formats, intelligently discovering endpoints, and creating properly scoped scans.
 
-BurpScan is a Python script designed to perform unauthenticated active scans using Burp Suite. It allows users to input various types of files or network addresses and processes them to facilitate automated scanning.
+# Overview
+BurpScan bridges the gap between reconnaissance tools and Burp Suite Professional, making unauthenticated web application security testing more efficient. It intelligently processes various input formats, verifies live services, optionally discovers endpoints with katana, and creates properly scoped Burp Suite active scans.
 
-![Screenshot of BurpScan](images/example.png)
+# Features
+- Multiple Input Formats: Process Nessus reports, Nmap XMLs, plain text lists, URLs, IPs, or CIDR ranges
+- Subdomain Isolation: Creates separate, properly scoped scans for each subdomain
+- Intelligent Crawling: Optional katana integration to discover endpoints before scanning
+- Input Validation: Detects complex URLs and warns about incompatibility with katana mode
+- Security-Focused: Maintains tight scope control to prevent scanner sprawl
+- Error Handling: Saves discovered URLs to files if API calls fail, allowing later retry
+- Interactive Mode: Allows selective scanning of discovered targets
 
-## Features
+# Prerequisites
+- Python 3.6+
+- Burp Suite Professional
+- ProjectDiscovery's [httpx](https://github.com/projectdiscovery/httpx) and [katana](https://github.com/projectdiscovery/katana)
+- Golang
 
-- Supports multiple input formats:
-  - `.nessus`, `.xml`, `.txt` files
-  - IP addresses, CIDR notations, and URLs
-- Can read input from standard input (stdin)
-- Integrates with `httpx` for silent processing of URLs before scanning
-- Debug mode for verbose output
+# Configure Burp Suite Professional:
+- Go to Settings → Suite → REST API
+- Enable "Service running"
+- Optionally set up an API key for added security
+- Optionally install and enable any bchecks that you want to run with your scans
 
-## Prerequisites
-
-Before running the script, ensure you have the following:
-
-- **Burp Suite**: Make sure you have Burp Suite installed and configured.
-- **Golang**: If you haven't figured out how to install `go` yet, you shouldn't be here.
-- **httpx**: Purge any existing version of `httpx` from Kali and install ProjectDiscovery's version.
-- **bchecks**: Install and set up `bchecks` and any other extensions you prefer.
-
-## Usage
-
-You can run the script in several ways:
-
-```bash
-python3 burpscan.py <file.nessus>
-python3 burpscan.py <file.xml>
-python3 burpscan.py <file.txt>
-python3 burpscan.py '<IP>'
-python3 burpscan.py '<CIDR>'
-python3 burpscan.py '<URL>'
-# OR
-cat <file> | python3 burpscan.py
-Command-Line Arguments
-input: Path to a .nessus, .xml, or .txt file, or an IP/domain/CIDR/URL. You can also use stdin.
---debug: Enable verbose debug output.
---api-key: Provide an API key (you can add one in Burp Suite settings).
+# Usage
 ```
-Installation
-Clone the repository:
-```bash
-git clone https://github.com/yourusername/burpscan.git
-cd burpscan
+python3 burpscan.py <input>
 ```
-Install the required dependencies (if any):
-```bash
-sudo apt purge python3-httpx -y
-go install -v github.com/projectdiscovery/httpx/cmd/httpx@latest
+Where <input> can be:
+- A .nessus file
+- An Nmap XML file
+- A text file with URLs/domains/IPs
+- A single URL, IP, or CIDR range
+
+Command-Line Options
 ```
-Ensure you have Burp Suite and the necessary tools set up as mentioned in the prerequisites.
+python3 burpscan.py --help
+usage: burpscan.py [-h] [--debug] [--api-key API_KEY] [--hailmary] [--katana] [input]
 
-Disclaimer
-This script is intended for educational purposes only. Use it responsibly and ensure you have permission to scan any network or application.
+       python3 burpscan.py <file.nessus>
+       python3 burpscan.py <file.xml>
+       python3 burpscan.py <file.txt>
+       python3 burpscan.py '<IP>'
+       python3 burpscan.py '<CIDR>'
+       python3 burpscan.py '<URL>'
+       OR
+       cat <file> | python3 burpscan.py
+       echo '<file>' | python3 burpscan.py
 
-Credit to [ProjectDiscovery](https://github.com/projectdiscovery) for httpx!
+optional arguments:
+  -h, --help           show this help message and exit
+  --debug              Enable verbose debug output
+  --api-key API_KEY    API key (You can add one in Burp Suite settings)
+  --hailmary           Automatically answer 'yes' to all prompts (except Burp API errors)
+  --katana             Run katana crawler against simple endpoints before sending to Burp Suite
+```
+  
+# Examples
+Scan a single domain:
+```
+python3 burpscan.py example.com
+```
+Scan with Katana crawler:
+```
+python3 burpscan.py example.com --katana
+```
+Process Nessus scan:
+```
+python3 burpscan.py scan-results.nessus
+```
+Process Nmap XML with API key:
+```
+python3 burpscan.py nmap-output.xml --api-key YOUR_API_KEY
+```
+Auto-accept all prompts: (Use with caution!)
+```
+python3 burpscan.py targets.txt --hailmary
+```
+Process stdin input:
+```
+cat targets.txt | python3 burpscan.py
+```
+
+# How It Works
+- Input Processing: Parses and normalizes input from various formats
+- Service Verification: Uses httpx to verify live HTTP/HTTPS services
+- URL Classification: Separates simple endpoints from complex URLs
+- Optional Crawling: If --katana is enabled, runs katana crawler on simple endpoints
+- Subdomain Grouping: Groups URLs by subdomain for separate scans
+- Scope Configuration: Creates proper scope for each subdomain to prevent scanner sprawl
+- Active Scanning: Sends requests to Burp Suite API to initiate properly scoped active scans
+
+# Common Workflows
+Basic Reconnaissance to Scan
+1. Run Nmap scan
+```
+nmap -p 0-65535 -oX results.xml <target>
+```
+2. Feed results to BurpScan
+```
+python3 burpscan.py results.xml
+```
+
+Vulnerability Assessment Follow-up
+1. After running a Nessus scan, export the .nessus file
+2. Feed it to BurpScan for deeper web application testing
+```
+python3 burpscan.py nessus-results.nessus --katana
+```
+Bug Bounty Hunting
+1. Get subdomains from subfinder
+2. subfinder -d target.com -o subdomains.txt
+3. Feed to BurpScan with katana for deeper reconnaissance
+```
+python3 burpscan.py subdomains.txt --katana
+```
+
+# Troubleshooting
+
+1. httpx not found: Ensure you've installed ProjectDiscovery's httpx, not the Python package:
+```
+sudo apt purge python3-httpx -y # Remove the kali pre-installed httpx
+```
+2. API connection errors: Verify Burp Suite is running and the REST API is enabled
+3. katana errors: Verify katana is installed and in your PATH
+
+# Credits
+[ProjectDiscovery](https://projectdiscovery.io/) for their excellent httpx and katana tools
+[PortSwigger](https://portswigger.net/) for Burp Suite and their REST API
+
+
+Note: This tool is intended for legal security testing with proper authorization. Always ensure you have permission to scan the targeted systems.
